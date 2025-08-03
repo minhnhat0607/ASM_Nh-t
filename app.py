@@ -56,13 +56,3 @@ sns.boxplot(data=df, x='Platform', y='Global_Sales', ax=ax5)
 ax5.set_xticklabels(ax5.get_xticklabels(), rotation=90)
 st.pyplot(fig5)
 
-
-from sklearn.ensemble import RandomForestRegressor
-
-# Huấn luyện mô hình trực tiếp trong app.py (vì đơn giản và nhanh)
-features = ['Platform', 'Genre', 'Critic_Score', 'User_Score', 'Year_of_Release']
-X = df[features]
-y = df['Global_Sales']
-
-model = RandomForestRegressor(n_estimators=100, random_state=42)
-model.fit(X, y)  # huấn luyện toàn bộ (vì app demo)
