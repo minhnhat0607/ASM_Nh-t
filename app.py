@@ -1,27 +1,22 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import pickle
 
-st.title("📊 Video Game Sales Dashboard")
+# Load mô hình đã huấn luyện
+model = pickle.load(open('model.pkl', 'rb'))
 
-# Load dữ liệu
-df = pd.read_csv("Video_Games_Sales_as_at_22_Dec_2016.csv")
+st.title("🎮 Game Global Sales Prediction App")
+st.markdown("Dự đoán doanh số bán toàn cầu của trò chơi dựa trên các đặc điểm đầu vào.")
 
-# Dọn dẹp dữ liệu
-df = df.dropna(subset=['Year_of_Release', 'Genre', 'Global_Sales'])
-df['Year_of_Release'] = df['Year_of_Release'].astype(int)
+# Nhập dữ liệu từ người dùng
+platform = st.number_input("Platform (encoded)", min_value=0, max_value=100, value=10)
+genre = st.number_input("Genre (encoded)", min_value=0, max_value=20, value=5)
+critic_score = st.slider("Critic Score", 0, 100, 75)
+user_score = st.slider("User Score", 0.0, 10.0, 8.0, step=0.1)
+year = st.number_input("Year of Release", min_value=1980, max_value=2025, value=2015)
 
-# 1. Tổng số game phát hành theo năm
-games_per_year = df.groupby('Year_of_Release')['Name'].count().reset_index()
-fig1 = px.line(games_per_year, x='Year_of_Release', y='Name', title='Số lượng game phát hành theo năm')
-st.plotly_chart(fig1)
-
-# 2. Doanh thu toàn cầu theo thể loại
-sales_by_genre = df.groupby('Genre')['Global_Sales'].sum().reset_index()
-fig2 = px.bar(sales_by_genre, x='Genre', y='Global_Sales', title='Doanh thu toàn cầu theo thể loại')
-st.plotly_chart(fig2)
-
-# 3. Top 10 game bán chạy nhất
-top_10 = df.sort_values('Global_Sales', ascending=False).head(10)
-fig3 = px.bar(top_10, x='Name', y='Global_Sales', title='Top 10 game bán chạy nhất')
-st.plotly_chart(fig3)
+# Dự đoán
+if st.button("Dự đoán doanh số"):
+    input_data = [[platform, genre, critic_score, user_score, year]]
+    prediction = model.predict(input_data)
+    st.success(f"💰 Doanh số dự đoán: {prediction[0]:.2f} triệu bản")
